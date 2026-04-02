@@ -1,0 +1,96 @@
+/* Fonts loaded at runtime — next/font/google unavailable in sandboxed environments */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Backgrounds */
+    --bg-base:       #060606;
+    --bg-surface:    #0c0c0c;
+    --bg-elevated:   #141414;
+    --bg-input:      #0e0e0e;
+
+    /* Borders */
+    --border-subtle:  #111111;
+    --border-default: #1a1a1a;
+    --border-hover:   #2a2a2a;
+
+    /* Text */
+    --text-primary:   #e8e8e8;
+    --text-secondary: #888888;
+    --text-muted:     #444444;
+    --text-ghost:     #242424;
+
+    /* Accent — use sparingly */
+    --accent:         #c8ff00;
+    --accent-dim:     #c8ff0022;
+    --accent-border:  #c8ff0044;
+
+    /* Semantic */
+    --success: #4ade80;
+    --error:   #ff7070;
+    --warning: #fb923c;
+    --info:    #60b4ff;
+
+    /* shadcn/ui compat */
+    --background:  var(--bg-base);
+    --foreground:  var(--text-primary);
+    --card:        var(--bg-surface);
+    --card-foreground: var(--text-primary);
+    --popover:     var(--bg-elevated);
+    --popover-foreground: var(--text-primary);
+    --primary:     var(--accent);
+    --primary-foreground: #000000;
+    --secondary:   var(--bg-elevated);
+    --secondary-foreground: var(--text-secondary);
+    --muted:       var(--bg-elevated);
+    --muted-foreground: var(--text-muted);
+    --accent-ui:   var(--bg-elevated);
+    --accent-foreground: var(--text-primary);
+    --destructive: var(--error);
+    --destructive-foreground: #ffffff;
+    --border:      var(--border-default);
+    --input:       var(--bg-input);
+    --ring:        var(--accent);
+    --radius:      0.625rem;
+  }
+
+  html {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    border-color: var(--border-default);
+  }
+
+  ::placeholder {
+    color: var(--text-ghost);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-base);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-hover);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
+}
