@@ -59,7 +59,7 @@ export function buildSystemPrompt(
 
   const audienceInstructions: Record<Audience, string> = {
     general:    'Write for a broad, intelligent audience. Avoid jargon.',
-    founders:   'Write for builders and entrepreneurs. Reference product, growth, and execution.',
+    founders:   'Write for founders and entrepreneurs. Reference product, growth, and execution.',
     marketers:  'Write for content and growth marketers. Reference channels, conversion, and audience.',
     developers: 'Write for software engineers. Technical accuracy matters. Respect their intelligence.',
   }
@@ -79,7 +79,7 @@ export function buildSystemPrompt(
       .join('\n\n---\n\n')
 
     voiceBlock = `
-VOICE MATCHING INSTRUCTIONS:
+VOICE MATCHING:
 Mirror the user's writing voice precisely. Their voice characteristics: ${brandVoiceSummary}
 Writing samples for reference:
 ${safeSamples}
