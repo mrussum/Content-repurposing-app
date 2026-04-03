@@ -35,7 +35,6 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname
 
-  // Protect app routes
   const isAppRoute = pathname.startsWith('/dashboard') ||
     pathname.startsWith('/generate') ||
     pathname.startsWith('/history') ||
@@ -49,11 +48,25 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Redirect authenticated users away from login
   if (user && pathname === '/login') {
     const url = request.nextUrl.clone()
     url.pathname = '/generate'
     return NextResponse.redirect(url)
+  }
+
+  // Redirect new users to onboarding (skip if already headed there)
+  if (user && isAppRoute && pathname !== '/onboarding') {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('has_onboarded')
+      .eq('id', user.id)
+      .single()
+
+    if (profile && !profile.has_onboarded) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/onboarding'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse

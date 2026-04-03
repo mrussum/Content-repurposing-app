@@ -1,4 +1,7 @@
 import type { Metadata, Viewport } from 'next'
+import { Suspense } from 'react'
+import { PosthogProvider } from '@/components/providers/PosthogProvider'
+import { SWRegistrar } from '@/components/providers/SWRegistrar'
 import '@/styles/globals.css'
 
 export const metadata: Metadata = {
@@ -18,7 +21,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark">
       <body className="bg-[#060606] text-[#e8e8e8] antialiased">
-        {children}
+        <SWRegistrar />
+        <Suspense>
+          <PosthogProvider>
+            {children}
+          </PosthogProvider>
+        </Suspense>
       </body>
     </html>
   )

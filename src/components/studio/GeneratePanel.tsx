@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { useStudioStore } from '@/stores/studioStore'
 import { useGenerate } from '@/hooks/useGenerate'
 import { UsageMeter } from '@/components/billing/UsageMeter'
+import { BrandVoiceEditor } from '@/components/studio/BrandVoiceEditor'
+import { PLAN_FEATURES } from '@/types/billing'
 import { cn } from '@/lib/utils'
 import type { Tone, Audience, TwitterLength } from '@/types/generation'
 
@@ -35,10 +37,12 @@ export function GeneratePanel({ plan }: GeneratePanelProps) {
   const content       = useStudioStore((s) => s.content)
   const tone          = useStudioStore((s) => s.tone)
   const audience      = useStudioStore((s) => s.audience)
-  const twitterLength = useStudioStore((s) => s.twitterLength)
-  const setContent    = useStudioStore((s) => s.setContent)
-  const setTone       = useStudioStore((s) => s.setTone)
-  const setAudience   = useStudioStore((s) => s.setAudience)
+  const twitterLength  = useStudioStore((s) => s.twitterLength)
+  const brandVoiceId   = useStudioStore((s) => s.brandVoiceId)
+  const setContent     = useStudioStore((s) => s.setContent)
+  const setTone        = useStudioStore((s) => s.setTone)
+  const setAudience    = useStudioStore((s) => s.setAudience)
+  const setBrandVoiceId = useStudioStore((s) => s.setBrandVoiceId)
   const setTwitterLength = useStudioStore((s) => s.setTwitterLength)
 
   const { generate, isGenerating } = useGenerate()
@@ -52,7 +56,9 @@ export function GeneratePanel({ plan }: GeneratePanelProps) {
 
   const charCount  = content.length
   const isNearMax  = charCount > MAX_CHARS * 0.9
-  const canGenerate = content.trim().length > 0 && !isGenerating
+  const canGenerate   = content.trim().length > 0 && !isGenerating
+  const isPro         = plan === 'pro' || plan === 'agency'
+  const maxVoiceSlots = PLAN_FEATURES[plan].brandVoiceSlots
 
   return (
     <div className="flex flex-col gap-5 p-5">
@@ -138,6 +144,17 @@ export function GeneratePanel({ plan }: GeneratePanelProps) {
           ))}
         </div>
       </div>
+
+      {isPro && (
+        <div>
+          <p className="text-xs font-medium text-[#555] uppercase tracking-wider mb-2">Brand Voice</p>
+          <BrandVoiceEditor
+            selectedId={brandVoiceId}
+            onSelect={setBrandVoiceId}
+            maxSlots={maxVoiceSlots}
+          />
+        </div>
+      )}
 
       <div className="mt-auto flex flex-col gap-3 pt-2">
         <Button

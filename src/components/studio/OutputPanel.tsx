@@ -5,6 +5,8 @@ import { Copy, Check, RefreshCw } from 'lucide-react'
 import { useStudioStore } from '@/stores/studioStore'
 import { useGenerate } from '@/hooks/useGenerate'
 import { FormatTab } from './FormatTab'
+import { InstagramCarousel } from './InstagramCarousel'
+import { PublishModal } from './PublishModal'
 import { cn } from '@/lib/utils'
 import type { FormatKey } from '@/types/generation'
 
@@ -28,9 +30,11 @@ export function OutputPanel({ plan }: OutputPanelProps) {
   const { regenerate, regenLoadingTab } = useGenerate()
 
   const isPro = plan === 'pro' || plan === 'agency'
-  const [copiedFormat, setCopiedFormat] = useState<FormatKey | null>(null)
+  const [copiedFormat, setCopiedFormat]   = useState<FormatKey | null>(null)
   const [regenInstruction, setRegenInstruction] = useState('')
-  const [showRegenInput, setShowRegenInput] = useState(false)
+  const [showRegenInput, setShowRegenInput]     = useState(false)
+  const [publishOpen, setPublishOpen]           = useState(false)
+  const PUBLISHABLE: FormatKey[] = ['twitter', 'linkedin', 'newsletter']
 
   const handleCopy = useCallback(async (text: string, format: FormatKey) => {
     await navigator.clipboard.writeText(text)
@@ -141,6 +145,15 @@ export function OutputPanel({ plan }: OutputPanelProps) {
             </div>
           )}
 
+          {isPro && PUBLISHABLE.includes(activeTab) && (
+            <button
+              onClick={() => setPublishOpen(true)}
+              className="flex items-center gap-1.5 h-7 px-2 rounded border border-[#1a1a1a] text-[#555] hover:text-[#888] hover:border-[#2a2a2a] text-xs transition-colors"
+            >
+              Publish
+            </button>
+          )}
+
           <button
             onClick={() => handleCopy(getFormatText(activeTab), activeTab)}
             className="flex items-center gap-1.5 h-7 px-2 rounded border border-[#1a1a1a] text-[#555] hover:text-[#888] hover:border-[#2a2a2a] text-xs transition-colors"
@@ -155,6 +168,16 @@ export function OutputPanel({ plan }: OutputPanelProps) {
       )}
 
       {/* Content */}
+      {currentGeneration && publishOpen && PUBLISHABLE.includes(activeTab) && (
+        <PublishModal
+          open={publishOpen}
+          onClose={() => setPublishOpen(false)}
+          format={activeTab}
+          content={getFormatText(activeTab)}
+          generationId={currentGeneration.id}
+        />
+      )}
+
       <div className="flex-1 overflow-y-auto p-5">
         {isGenerating && !currentGeneration ? (
           <GeneratingSkeleton />
@@ -241,26 +264,7 @@ function FormatContent({ format, result, onCopy, copiedFormat }: FormatContentPr
       )
 
     case 'instagram':
-      return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {result.instagram.map((slide) => (
-            <div
-              key={slide.slide}
-              className="rounded-[14px] border border-[#1a1a1a] bg-[#0e0e0e] p-4 aspect-square flex flex-col justify-between"
-              style={{ maxWidth: 'clamp(280px, 100%, 500px)' }}
-            >
-              <span className="text-[10px] text-[#444] uppercase tracking-wider">{slide.type}</span>
-              <div>
-                <p className="text-lg font-bold text-[#e8e8e8] font-syne leading-tight mb-2">
-                  {slide.headline}
-                </p>
-                <p className="text-xs text-[#888] leading-relaxed">{slide.body}</p>
-              </div>
-              <span className="text-[10px] text-[#444]">Slide {slide.slide}</span>
-            </div>
-          ))}
-        </div>
-      )
+      return <InstagramCarousel slides={result.instagram} />
 
     case 'blog':
       return (
