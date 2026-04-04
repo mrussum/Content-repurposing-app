@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { checkTokenBudget } from '@/lib/anthropic/generate'
 import { estimateTokens } from '@/lib/utils'
 
@@ -84,7 +84,7 @@ describe('GenerationResult schema validation', () => {
   })
 
   it('rejects result missing required fields', () => {
-    const { summary: _, ...withoutSummary } = validResult
+    const { summary: _s, ...withoutSummary } = validResult  // eslint-disable-line @typescript-eslint/no-unused-vars
     expect(GenerationResultSchema.safeParse(withoutSummary).success).toBe(false)
   })
 

@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { ArrowRight, Sparkles, Clock, TrendingUp } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
-import type { Plan, GenerationResult } from '@/types/generation'
+import type { Plan } from '@/types/generation'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -26,7 +26,7 @@ export default async function DashboardPage() {
         <h1 className="text-xl font-bold text-[#e8e8e8] font-syne">
           {profile?.full_name ? `Hey, ${profile.full_name.split(' ')[0]}` : 'Dashboard'}
         </h1>
-        <p className="text-sm text-[#555] mt-1">Here's what's been happening.</p>
+        <p className="text-sm text-[#555] mt-1">Here&apos;s what&apos;s been happening.</p>
       </div>
 
       {/* Stats */}
@@ -73,7 +73,6 @@ export default async function DashboardPage() {
         ) : (
           <div className="flex flex-col gap-2">
             {history.map((gen) => {
-              const result = gen.result as unknown as GenerationResult
               return (
                 <Link
                   key={gen.id}

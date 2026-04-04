@@ -11,7 +11,7 @@ const createSchema = z.object({
 // GET — list all API keys for the authenticated user
 export async function GET() {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new AuthError()
 
@@ -41,7 +41,7 @@ export async function GET() {
 // POST — create a new API key (raw key shown once, only hash stored)
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new AuthError()
 
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
 
     const body   = await req.json()
     const parsed = createSchema.safeParse(body)
-    if (!parsed.success) throw new ValidationError(parsed.error.errors[0].message)
+    if (!parsed.success) throw new ValidationError(parsed.error.issues[0].message)
 
     // Enforce a max of 10 keys per user
     const { count } = await supabase

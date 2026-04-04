@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
+import { sendDigestEmail } from '@/lib/resend/client'
 import * as Sentry from '@sentry/nextjs'
 
 // Vercel Cron: runs daily at 9am UTC (see vercel.json)
@@ -30,19 +31,12 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ sent: 0 })
     }
 
-    // Send digest emails via Resend
-    const { getResend } = await import('@/lib/resend/client')
-    const resend = getResend()
     let sent = 0
 
     for (const user of activeUsers) {
       try {
-        await resend.emails.send({
-          from:    process.env.RESEND_FROM_EMAIL ?? 'hello@contentstudio.pro',
-          to:      user.email,
-          subject: `Your content week in review — Content Studio Pro`,
-          html:    buildDigestEmail(user.full_name ?? user.email, user.generations_used, user.plan),
-        })
+        const html = buildDigestEmail(user.full_name ?? user.email, user.generations_used, user.plan)
+        await sendDigestEmail(user.email, user.full_name ?? user.email, user.generations_used, user.plan, html)
         sent++
       } catch (emailErr) {
         // Don't abort the whole run for one failed email

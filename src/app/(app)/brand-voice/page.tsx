@@ -25,7 +25,7 @@ export default async function BrandVoicePage() {
       <div className="mb-8">
         <h1 className="text-xl font-bold text-[#e8e8e8] font-syne">Brand Voice</h1>
         <p className="text-sm text-[#555] mt-1">
-          Paste samples of your writing. We'll learn your style and mirror it across all formats.
+          Paste samples of your writing. We&apos;ll learn your style and mirror it across all formats.
         </p>
       </div>
       <BrandVoicePageClient maxSlots={maxSlots} />

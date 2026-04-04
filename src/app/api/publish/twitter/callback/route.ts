@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.redirect(`${appUrl}/login`)
 

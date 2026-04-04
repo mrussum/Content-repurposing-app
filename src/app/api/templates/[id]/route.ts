@@ -17,7 +17,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new AuthError()
 
@@ -30,8 +30,7 @@ export async function GET(
     if (!template) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
     // Increment use_count asynchronously — don't await
-    const service = createAdminClient()
-    service.then(s => s.rpc('increment_template_use_count', { p_template_id: params.id }))
+    createAdminClient().then(s => s.rpc('increment_template_use_count', { p_template_id: params.id }))
 
     return NextResponse.json({ template })
   } catch (error) {
@@ -47,13 +46,13 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new AuthError()
 
     const body   = await req.json()
     const parsed = updateSchema.safeParse(body)
-    if (!parsed.success) throw new ValidationError(parsed.error.errors[0].message)
+    if (!parsed.success) throw new ValidationError(parsed.error.issues[0].message)
 
     const { data: template, error } = await supabase
       .from('templates')
@@ -80,7 +79,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new AuthError()
 

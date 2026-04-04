@@ -6,7 +6,7 @@ import * as Sentry from '@sentry/nextjs'
 // LinkedIn OAuth 2.0 — initiates the authorization flow
 export async function GET() {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new AuthError()
 

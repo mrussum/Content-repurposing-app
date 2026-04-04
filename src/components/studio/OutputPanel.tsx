@@ -225,7 +225,7 @@ function FormatContent({ format, result, onCopy, copiedFormat }: FormatContentPr
         <div className="flex flex-col gap-3">
           {result.quotes.map((quote, i) => (
             <div key={i} className="group relative rounded-[10px] border border-[#1a1a1a] bg-[#0e0e0e] p-4">
-              <p className="text-sm text-[#e8e8e8] leading-relaxed italic">"{quote}"</p>
+              <p className="text-sm text-[#e8e8e8] leading-relaxed italic">&ldquo;{quote}&rdquo;</p>
               <button
                 onClick={() => onCopy(quote, format)}
                 className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 p-1 rounded text-[#555] hover:text-[#888] transition-all"

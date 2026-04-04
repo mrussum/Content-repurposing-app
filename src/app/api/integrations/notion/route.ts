@@ -6,7 +6,7 @@ import * as Sentry from '@sentry/nextjs'
 // Initiate Notion OAuth flow
 export async function GET() {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new AuthError()
 

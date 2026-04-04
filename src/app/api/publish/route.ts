@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { createPost, createThread } from '@/lib/buffer/client'
 import { AuthError, PlanRequiredError, ValidationError } from '@/lib/errors'
-import type { Plan, GenerationResult } from '@/types/generation'
+import type { Plan } from '@/types/generation'
 
 const RequestSchema = z.object({
   generationId: z.string().uuid(),

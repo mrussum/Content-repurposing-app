@@ -14,7 +14,7 @@ const createSchema = z.object({
 // GET — list public templates + user's own private templates
 export async function GET() {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new AuthError()
 
@@ -36,13 +36,13 @@ export async function GET() {
 // POST — create a custom template (any plan)
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new AuthError()
 
     const body   = await req.json()
     const parsed = createSchema.safeParse(body)
-    if (!parsed.success) throw new ValidationError(parsed.error.errors[0].message)
+    if (!parsed.success) throw new ValidationError(parsed.error.issues[0].message)
 
     const { data: template, error } = await supabase
       .from('templates')

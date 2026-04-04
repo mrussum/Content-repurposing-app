@@ -31,6 +31,21 @@ If you have any questions, reply to this email.
   })
 }
 
+export async function sendDigestEmail(
+  email: string,
+  name: string,
+  generationsUsed: number,
+  plan: string,
+  html: string
+): Promise<void> {
+  await getResend().emails.send({
+    from:    FROM(),
+    to:      email,
+    subject: `Your content week in review — Content Studio Pro`,
+    html,
+  })
+}
+
 export async function sendCancellationEmail(email: string, name?: string | null): Promise<void> {
   await getResend().emails.send({
     from:    FROM(),

@@ -12,7 +12,7 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new AuthError()
 
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json()
     const parsed = schema.safeParse(body)
-    if (!parsed.success) throw new ValidationError(parsed.error.errors[0].message)
+    if (!parsed.success) throw new ValidationError(parsed.error.issues[0].message)
 
     const { tweets, generationId, scheduledAt } = parsed.data
 

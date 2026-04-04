@@ -13,13 +13,13 @@ const schema = z.object({
 // Export blog outline from a generation to a new Notion page
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new AuthError()
 
     const body   = await req.json()
     const parsed = schema.safeParse(body)
-    if (!parsed.success) throw new ValidationError(parsed.error.errors[0].message)
+    if (!parsed.success) throw new ValidationError(parsed.error.issues[0].message)
 
     const { generationId, pageTitle } = parsed.data
 
