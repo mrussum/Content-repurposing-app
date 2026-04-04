@@ -48,7 +48,8 @@ export function buildSystemPrompt(
   audience: Audience,
   twitterLength: TwitterLength = 7,
   brandVoiceSummary?: string,
-  brandVoiceSamples?: string[]
+  brandVoiceSamples?: string[],
+  templateAddon?: string
 ): string {
   const toneInstructions: Record<Tone, string> = {
     professional: 'Write with authority and precision. Clear, structured, credible. No fluff.',
@@ -87,12 +88,18 @@ The output must feel like the user wrote it themselves.
 `.trim()
   }
 
+  // Truncate template addon to prevent runaway prompt size
+  const templateBlock = templateAddon
+    ? `TEMPLATE STYLE:\n${templateAddon.slice(0, 1000)}`
+    : ''
+
   return [
     `You are an expert content strategist and copywriter.`,
     `TONE: ${toneInstructions[tone]}`,
     `AUDIENCE: ${audienceInstructions[audience]}`,
     `TWITTER THREAD LENGTH: ${twitterLength} tweets.`,
     voiceBlock,
+    templateBlock,
     QUALITY_GUARDRAILS,
     JSON_SCHEMA,
     JSON_SCHEMA_STRICT,

@@ -2,14 +2,16 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Sparkles, History, Mic, Settings, Lock } from 'lucide-react'
+import { Sparkles, History, Mic, Settings, Lock, Calendar, LayoutTemplate } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV = [
-  { href: '/generate',    label: 'Generate',    icon: Sparkles,  proRequired: false },
-  { href: '/history',     label: 'History',     icon: History,   proRequired: true  },
-  { href: '/brand-voice', label: 'Brand Voice', icon: Mic,       proRequired: true  },
-  { href: '/settings',    label: 'Settings',    icon: Settings,  proRequired: false },
+  { href: '/generate',    label: 'Generate',    icon: Sparkles,       proRequired: false },
+  { href: '/history',     label: 'History',     icon: History,        proRequired: true  },
+  { href: '/brand-voice', label: 'Brand Voice', icon: Mic,            proRequired: true  },
+  { href: '/calendar',    label: 'Calendar',    icon: Calendar,       proRequired: true  },
+  { href: '/templates',   label: 'Templates',   icon: LayoutTemplate, proRequired: false },
+  { href: '/settings',    label: 'Settings',    icon: Settings,       proRequired: false },
 ]
 
 interface SidebarProps {

@@ -108,40 +108,14 @@ export function OutputPanel({ plan }: OutputPanelProps) {
 
           {isPro && (
             <div className="flex items-center gap-2">
-              {showRegenInput ? (
-                <>
-                  <input
-                    value={regenInstruction}
-                    onChange={(e) => setRegenInstruction(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleRegen()}
-                    placeholder="e.g. make it shorter…"
-                    className="h-7 w-40 rounded border border-[#2a2a2a] bg-[#0e0e0e] px-2 text-xs text-[#e8e8e8] focus:border-[#c8ff00] focus:outline-none"
-                    autoFocus
-                  />
-                  <button
-                    onClick={handleRegen}
-                    disabled={!!regenLoadingTab}
-                    className="h-7 px-2 rounded text-xs border border-[#2a2a2a] text-[#888] hover:text-[#e8e8e8] transition-colors"
-                  >
-                    Go
-                  </button>
-                  <button
-                    onClick={() => setShowRegenInput(false)}
-                    className="h-7 px-2 text-xs text-[#444] hover:text-[#888] transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setShowRegenInput(true)}
-                  disabled={regenLoadingTab === activeTab}
-                  className="flex items-center gap-1.5 h-7 px-2 rounded border border-[#1a1a1a] text-[#555] hover:text-[#888] hover:border-[#2a2a2a] text-xs transition-colors disabled:opacity-40"
-                >
-                  <RefreshCw className={cn('h-3 w-3', regenLoadingTab === activeTab && 'animate-spin')} />
-                  Regenerate
-                </button>
-              )}
+                  <RegenControl
+                instruction={regenInstruction}
+                setInstruction={setRegenInstruction}
+                show={showRegenInput}
+                setShow={setShowRegenInput}
+                loading={regenLoadingTab === activeTab}
+                onRegen={handleRegen}
+              />
             </div>
           )}
 
@@ -290,4 +264,83 @@ function FormatContent({ format, result, onCopy, copiedFormat }: FormatContentPr
     default:
       return null
   }
+}
+
+const REGEN_CHIPS = [
+  'Make it shorter',
+  'Make it funnier',
+  'More formal',
+  'Add a statistic',
+  'More punchy',
+  'Simplify language',
+] as const
+
+interface RegenControlProps {
+  instruction:    string
+  setInstruction: (v: string) => void
+  show:           boolean
+  setShow:        (v: boolean) => void
+  loading:        boolean
+  onRegen:        () => void
+}
+
+function RegenControl({ instruction, setInstruction, show, setShow, loading, onRegen }: RegenControlProps) {
+  if (!show) {
+    return (
+      <button
+        onClick={() => setShow(true)}
+        disabled={loading}
+        className="flex items-center gap-1.5 h-7 px-2 rounded border border-[#1a1a1a] text-[#555] hover:text-[#888] hover:border-[#2a2a2a] text-xs transition-colors disabled:opacity-40"
+      >
+        <RefreshCw className={cn('h-3 w-3', loading && 'animate-spin')} />
+        Regenerate
+      </button>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5 items-end">
+      {/* Instruction chips */}
+      <div className="flex flex-wrap gap-1 justify-end">
+        {REGEN_CHIPS.map((chip) => (
+          <button
+            key={chip}
+            onClick={() => setInstruction(chip)}
+            className={cn(
+              'h-6 px-2 rounded-full text-[10px] border transition-colors',
+              instruction === chip
+                ? 'border-[#c8ff00]/50 bg-[#c8ff00]/10 text-[#c8ff00]'
+                : 'border-[#1a1a1a] text-[#444] hover:text-[#888] hover:border-[#2a2a2a]'
+            )}
+          >
+            {chip}
+          </button>
+        ))}
+      </div>
+      {/* Input + actions */}
+      <div className="flex items-center gap-1.5">
+        <input
+          value={instruction}
+          onChange={(e) => setInstruction(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && onRegen()}
+          placeholder="Custom instruction…"
+          className="h-7 w-40 rounded border border-[#2a2a2a] bg-[#0e0e0e] px-2 text-xs text-[#e8e8e8] focus:border-[#c8ff00] focus:outline-none"
+          autoFocus
+        />
+        <button
+          onClick={onRegen}
+          disabled={loading}
+          className="h-7 px-2 rounded text-xs border border-[#2a2a2a] text-[#888] hover:text-[#e8e8e8] transition-colors disabled:opacity-40"
+        >
+          Go
+        </button>
+        <button
+          onClick={() => { setShow(false); setInstruction('') }}
+          className="h-7 px-2 text-xs text-[#444] hover:text-[#888] transition-colors"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+  )
 }
