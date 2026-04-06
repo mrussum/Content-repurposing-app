@@ -45,6 +45,7 @@ export interface GenerateParams {
   twitterLength?: TwitterLength
   brandVoiceSummary?: string
   brandVoiceSamples?: string[]
+  templateAddon?: string
 }
 
 // Enforced before calling Claude to prevent runaway costs
@@ -67,9 +68,10 @@ export async function generateContent(params: GenerateParams): Promise<Generatio
     twitterLength = 7,
     brandVoiceSummary,
     brandVoiceSamples,
+    templateAddon,
   } = params
 
-  const system = buildSystemPrompt(tone, audience, twitterLength, brandVoiceSummary, brandVoiceSamples)
+  const system = buildSystemPrompt(tone, audience, twitterLength, brandVoiceSummary, brandVoiceSamples, templateAddon)
   const user   = buildUserPrompt(content)
 
   const raw = await callClaude(system, user, TOKEN_LIMITS.generation)

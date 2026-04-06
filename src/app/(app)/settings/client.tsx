@@ -1,25 +1,33 @@
 'use client'
 
 import { useState } from 'react'
-import { ExternalLink, Check } from 'lucide-react'
+import { ExternalLink, Check, Link2Off } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { UpgradeModal } from '@/components/billing/UpgradeModal'
 import { PLANS } from '@/lib/stripe/plans'
+import { cn } from '@/lib/utils'
 import type { Plan } from '@/types/generation'
 
 interface SettingsClientProps {
-  plan:            Plan
-  email:           string
-  name:            string | null
-  hasSubscription: boolean
-  bufferConnected: boolean
+  plan:             Plan
+  email:            string
+  name:             string | null
+  hasSubscription:  boolean
+  bufferConnected:  boolean
+  twitterConnected: boolean
+  linkedinConnected:boolean
+  notionConnected:  boolean
 }
 
-export function SettingsClient({ plan, email, name, hasSubscription, bufferConnected }: SettingsClientProps) {
-  const [showUpgrade, setShowUpgrade] = useState(false)
+export function SettingsClient({
+  plan, email, name, hasSubscription,
+  bufferConnected, twitterConnected, linkedinConnected, notionConnected,
+}: SettingsClientProps) {
+  const [showUpgrade,   setShowUpgrade]   = useState(false)
   const [portalLoading, setPortalLoading] = useState(false)
   const currentPlan = PLANS[plan]
+  const isPro       = plan === 'pro' || plan === 'agency'
 
   async function openBillingPortal() {
     setPortalLoading(true)
@@ -50,7 +58,7 @@ export function SettingsClient({ plan, email, name, hasSubscription, bufferConne
 
       {/* Billing */}
       <section className="rounded-[14px] border border-[#1a1a1a] bg-[#0c0c0c] p-5">
-        <h2 className="text-sm font-semibold text-[#e8e8e8] font-syne mb-4">Plan & Billing</h2>
+        <h2 className="text-sm font-semibold text-[#e8e8e8] font-syne mb-4">Plan &amp; Billing</h2>
 
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -59,11 +67,7 @@ export function SettingsClient({ plan, email, name, hasSubscription, bufferConne
               {plan !== 'free' && <Badge variant="pro">{plan === 'agency' ? 'Agency' : 'Pro'}</Badge>}
             </div>
             <p className="text-xs text-[#555] mt-0.5">
-              {plan === 'free'
-                ? '3 generations / day'
-                : plan === 'pro'
-                ? '100 generations / day'
-                : 'Unlimited generations'}
+              {plan === 'free' ? '3 generations / day' : plan === 'pro' ? '100 generations / day' : 'Unlimited generations'}
             </p>
           </div>
 
@@ -91,39 +95,106 @@ export function SettingsClient({ plan, email, name, hasSubscription, bufferConne
       {/* Integrations */}
       <section className="rounded-[14px] border border-[#1a1a1a] bg-[#0c0c0c] p-5">
         <h2 className="text-sm font-semibold text-[#e8e8e8] font-syne mb-4">Integrations</h2>
+        <div className="flex flex-col divide-y divide-[#111]">
 
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-[#e8e8e8]">Buffer</p>
-            <p className="text-xs text-[#555] mt-0.5">Publish to Twitter and LinkedIn</p>
-          </div>
+          <IntegrationRow
+            name="Twitter / X"
+            description="Post threads directly from Content Studio"
+            connected={twitterConnected}
+            connectHref="/api/publish/twitter/oauth"
+            proRequired={!isPro}
+            onUpgrade={() => setShowUpgrade(true)}
+          />
 
-          {bufferConnected ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-[#4ade80] flex items-center gap-1">
-                <Check className="h-3 w-3" /> Connected
-              </span>
-            </div>
-          ) : (
-            <Button
-              variant="secondary"
-              size="sm"
-              asChild
-              disabled={plan === 'free'}
-            >
-              <a href="/api/buffer/oauth">
-                Connect <ExternalLink className="ml-1 h-3 w-3" />
-              </a>
-            </Button>
-          )}
+          <IntegrationRow
+            name="LinkedIn"
+            description="Publish posts directly to your profile"
+            connected={linkedinConnected}
+            connectHref="/api/publish/linkedin/oauth"
+            proRequired={!isPro}
+            onUpgrade={() => setShowUpgrade(true)}
+          />
+
+          <IntegrationRow
+            name="Buffer"
+            description="Schedule posts across multiple platforms"
+            connected={bufferConnected}
+            connectHref="/api/buffer/oauth"
+            proRequired={!isPro}
+            onUpgrade={() => setShowUpgrade(true)}
+          />
+
+          <IntegrationRow
+            name="Notion"
+            description="Export blog outlines as Notion pages"
+            connected={notionConnected}
+            connectHref="/api/integrations/notion"
+            proRequired={!isPro}
+            onUpgrade={() => setShowUpgrade(true)}
+          />
+
         </div>
       </section>
+
+      {/* Agency API keys link */}
+      {plan === 'agency' && (
+        <section className="rounded-[14px] border border-[#1a1a1a] bg-[#0c0c0c] p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-[#e8e8e8]">API Access</p>
+              <p className="text-xs text-[#555] mt-0.5">Manage keys for the Content Studio API</p>
+            </div>
+            <Button variant="secondary" size="sm" asChild>
+              <a href="/settings/api">Manage keys</a>
+            </Button>
+          </div>
+        </section>
+      )}
 
       <UpgradeModal
         open={showUpgrade}
         onClose={() => setShowUpgrade(false)}
         trigger="header"
       />
+    </div>
+  )
+}
+
+interface IntegrationRowProps {
+  name:        string
+  description: string
+  connected:   boolean
+  connectHref: string
+  proRequired: boolean
+  onUpgrade:   () => void
+}
+
+function IntegrationRow({ name, description, connected, connectHref, proRequired, onUpgrade }: IntegrationRowProps) {
+  return (
+    <div className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
+      <div>
+        <p className="text-sm text-[#e8e8e8]">{name}</p>
+        <p className="text-xs text-[#555] mt-0.5">{description}</p>
+      </div>
+
+      {connected ? (
+        <span className={cn('text-xs text-[#4ade80] flex items-center gap-1')}>
+          <Check className="h-3 w-3" /> Connected
+        </span>
+      ) : proRequired ? (
+        <button
+          onClick={onUpgrade}
+          className="flex items-center gap-1 text-xs text-[#c8ff00] hover:underline transition-colors"
+        >
+          <Link2Off className="h-3 w-3" /> Upgrade to connect
+        </button>
+      ) : (
+        <Button variant="secondary" size="sm" asChild>
+          <a href={connectHref}>
+            Connect <ExternalLink className="ml-1 h-3 w-3" />
+          </a>
+        </Button>
+      )}
     </div>
   )
 }

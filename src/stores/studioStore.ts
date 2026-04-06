@@ -13,6 +13,7 @@ interface StudioStore {
   tone:           Tone
   audience:       Audience
   brandVoiceId:   string | null
+  templateId:     string | null
   twitterLength:  TwitterLength
 
   // Output
@@ -29,6 +30,7 @@ interface StudioStore {
   setTone:         (tone: Tone) => void
   setAudience:     (audience: Audience) => void
   setBrandVoiceId: (id: string | null) => void
+  setTemplateId:   (id: string | null) => void
   setTwitterLength:(length: TwitterLength) => void
   setActiveTab:    (tab: FormatKey) => void
   clearError:      () => void
@@ -42,6 +44,7 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
   tone:              'professional',
   audience:          'general',
   brandVoiceId:      null,
+  templateId:        null,
   twitterLength:     7,
   currentGeneration: null,
   activeTab:         'summary',
@@ -53,6 +56,7 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
   setTone:          (tone)          => set({ tone }),
   setAudience:      (audience)      => set({ audience }),
   setBrandVoiceId:  (brandVoiceId)  => set({ brandVoiceId }),
+  setTemplateId:    (templateId)    => set({ templateId }),
   setTwitterLength: (twitterLength) => set({ twitterLength }),
   setActiveTab:     (activeTab)     => set({ activeTab }),
   clearError:       ()              => set({ error: null }),
@@ -69,7 +73,7 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
   },
 
   generate: async () => {
-    const { content, tone, audience, brandVoiceId, twitterLength } = get()
+    const { content, tone, audience, brandVoiceId, templateId, twitterLength } = get()
     if (!content.trim()) return
 
     set({ isGenerating: true, error: null, currentGeneration: null })
@@ -78,7 +82,7 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
       const res = await fetch('/api/generate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ content, tone, audience, brandVoiceId, twitterLength }),
+        body:    JSON.stringify({ content, tone, audience, brandVoiceId, templateId, twitterLength }),
       })
 
       if (!res.ok) {

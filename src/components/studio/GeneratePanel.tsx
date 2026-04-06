@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { useStudioStore } from '@/stores/studioStore'
@@ -10,6 +10,7 @@ import { BrandVoiceEditor } from '@/components/studio/BrandVoiceEditor'
 import { PLAN_FEATURES } from '@/types/billing'
 import { cn } from '@/lib/utils'
 import type { Tone, Audience, TwitterLength } from '@/types/generation'
+import type { Template } from '@/types/database'
 
 const MAX_CHARS = 10_000
 
@@ -42,8 +43,21 @@ export function GeneratePanel({ plan }: GeneratePanelProps) {
   const setContent     = useStudioStore((s) => s.setContent)
   const setTone        = useStudioStore((s) => s.setTone)
   const setAudience    = useStudioStore((s) => s.setAudience)
-  const setBrandVoiceId = useStudioStore((s) => s.setBrandVoiceId)
+  const templateId       = useStudioStore((s) => s.templateId)
+  const setBrandVoiceId  = useStudioStore((s) => s.setBrandVoiceId)
+  const setTemplateId    = useStudioStore((s) => s.setTemplateId)
   const setTwitterLength = useStudioStore((s) => s.setTwitterLength)
+
+  const [templates, setTemplates] = useState<Pick<Template, 'id' | 'name' | 'description'>[]>([])
+
+  useEffect(() => {
+    fetch('/api/templates')
+      .then(r => r.json())
+      .then((d: { templates?: Pick<Template, 'id' | 'name' | 'description'>[] }) => {
+        if (d.templates) setTemplates(d.templates)
+      })
+      .catch(() => { /* non-critical — template selector just stays empty */ })
+  }, [])
 
   const { generate, isGenerating } = useGenerate()
 
@@ -153,6 +167,40 @@ export function GeneratePanel({ plan }: GeneratePanelProps) {
             onSelect={setBrandVoiceId}
             maxSlots={maxVoiceSlots}
           />
+        </div>
+      )}
+
+      {templates.length > 0 && (
+        <div>
+          <p className="text-xs font-medium text-[#555] uppercase tracking-wider mb-2">Template</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setTemplateId(null)}
+              className={cn(
+                'px-3 py-1.5 rounded-sm border text-xs font-medium transition-all duration-150',
+                templateId === null
+                  ? 'bg-[#c8ff00] text-black border-[#c8ff00]'
+                  : 'bg-[#101010] text-[#555] border-[#1e1e1e] hover:border-[#2a2a2a] hover:text-[#888]'
+              )}
+            >
+              Default
+            </button>
+            {templates.map(t => (
+              <button
+                key={t.id}
+                onClick={() => setTemplateId(t.id)}
+                title={t.description}
+                className={cn(
+                  'px-3 py-1.5 rounded-sm border text-xs font-medium transition-all duration-150',
+                  templateId === t.id
+                    ? 'bg-[#c8ff00] text-black border-[#c8ff00]'
+                    : 'bg-[#101010] text-[#555] border-[#1e1e1e] hover:border-[#2a2a2a] hover:text-[#888]'
+                )}
+              >
+                {t.name}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 

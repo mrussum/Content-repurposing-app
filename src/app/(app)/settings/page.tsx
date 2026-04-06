@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { SettingsClient } from './client'
 import type { Plan } from '@/types/generation'
 
+export const metadata = { title: 'Settings — Content Studio Pro' }
+
 export default async function SettingsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -10,7 +12,7 @@ export default async function SettingsPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('plan, email, full_name, stripe_subscription_id, buffer_access_token')
+    .select('plan, email, full_name, stripe_subscription_id, buffer_access_token, twitter_access_token, linkedin_access_token, notion_access_token')
     .eq('id', user.id)
     .single()
 
@@ -23,6 +25,9 @@ export default async function SettingsPage() {
         name={profile?.full_name ?? null}
         hasSubscription={!!profile?.stripe_subscription_id}
         bufferConnected={!!profile?.buffer_access_token}
+        twitterConnected={!!profile?.twitter_access_token}
+        linkedinConnected={!!profile?.linkedin_access_token}
+        notionConnected={!!profile?.notion_access_token}
       />
     </div>
   )

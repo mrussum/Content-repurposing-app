@@ -11,6 +11,7 @@ const RequestSchema = z.object({
   tone:           z.enum(['professional', 'casual', 'witty', 'educational']),
   audience:       z.enum(['general', 'founders', 'marketers', 'developers']),
   brandVoiceId:   z.string().uuid().optional(),
+  templateId:     z.string().uuid().optional(),
   twitterLength:  z.union([z.literal(5), z.literal(7), z.literal(10)]).optional().default(7),
 })
 
@@ -22,7 +23,7 @@ export async function POST(req: Request) {
       throw new ValidationError(parsed.error.issues[0]?.message ?? 'Invalid request')
     }
 
-    const { content, tone, audience, brandVoiceId, twitterLength } = parsed.data
+    const { content, tone, audience, brandVoiceId, templateId, twitterLength } = parsed.data
 
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -67,6 +68,21 @@ export async function POST(req: Request) {
       }
     }
 
+    // Fetch template addon if provided
+    let templateAddon: string | undefined
+    if (templateId) {
+      const { data: template } = await supabase
+        .from('templates')
+        .select('system_prompt_addon')
+        .eq('id', templateId)
+        .single()
+      if (template?.system_prompt_addon) {
+        templateAddon = template.system_prompt_addon
+        // Fire-and-forget use_count increment
+        supabase.rpc('increment_template_use_count', { p_template_id: templateId })
+      }
+    }
+
     const result = await generateContent({
       content,
       tone,
@@ -74,19 +90,21 @@ export async function POST(req: Request) {
       twitterLength,
       brandVoiceSummary,
       brandVoiceSamples,
+      templateAddon,
     })
 
     // Persist generation and increment usage counter atomically
     const { data: generation } = await supabase
       .from('generations')
       .insert({
-        user_id:       user.id,
-        content_input: content,
-        result:        result as unknown as Record<string, unknown>,
+        user_id:        user.id,
+        content_input:  content,
+        result:         result as unknown as Record<string, unknown>,
         tone,
         audience,
         brand_voice_id: brandVoiceId ?? null,
-        word_count:    content.trim().split(/\s+/).length,
+        template_id:    templateId ?? null,
+        word_count:     content.trim().split(/\s+/).length,
       })
       .select('id')
       .single()
